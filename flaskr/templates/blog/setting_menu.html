@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <h3>Assegnazioni da Turno</h3>
+    <span>
+    <a class="action" href="{{ url_for('blog.setting', setPage='Venezia') }}">Venezia</a>
+    <a class="action" href="{{ url_for('blog.setting', setPage='Mestre') }}">Mestre</a>
+    </span>
+    <form class="sepa" method="post" action="{{ url_for('blog.eliminaUtente')}}">
+    <h3>Elimina Utente</h3>
+        <div style="display:flex;">
+            <label for="quantity">Matricola:</label>
+            <input type="number" id="quantity" name="matricola" required>
+        </div>
+        <input type="submit" value="Elimina">
+    </form>
+    <form class="sepa" method="post" action="{{ url_for('blog.aggiungiAdmin')}}">
+    <h3>Aggiungi Admin</h3>
+        <div style="display:flex;">
+            <label for="quantity">Matricola:</label>
+            <input type="number" id="quantity" name="mat" required>
+        </div>
+        <input type="submit" value="Aggiungi Admin">
+    </form>
+    </form>
+    <form class="sepa" method="post" action="{{ url_for('blog.rimuoviAdmin')}}">
+    <h3>Rimuovi Admin</h3>
+        <div style="display:flex;">
+            <label for="quantity">Matricola:</label>
+            <select id="matricola" name="matricola">
+                <option disabled selected value> -- </option>
+                {% for ad in admins %}
+                    <option value='{{ ad["username"] }}'>{{ ad["username"] }}</option>
+                {% endfor %}
+                </select>
+        </div>
+        <input type="submit" value="Rimuovi Admin">
+    </form>
+{% endblock %}

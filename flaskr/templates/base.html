@@ -1,0 +1,29 @@
+<!doctype html>
+<title>{% block title %}{% endblock %}Parcheggi</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<nav>
+  <h1>Prenotazione Parcheggi</h1>
+  <ul>
+    {% if g.user %}
+      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('blog.index') }}">Home</a>
+      <li><a href="{{ url_for('auth.logout') }}">LogOut</a>
+      {% if g.user['admin'] == 1 %}
+        <li><a href="{{ url_for('blog.setting_menu') }}">Setting</a>
+      {% endif %}
+    {% else %}
+      <li><a href="{{ url_for('auth.register') }}">Registrazione</a>
+      <li><a href="{{ url_for('auth.login') }}">LogIn</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
