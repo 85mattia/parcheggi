@@ -21,7 +21,7 @@
         </tr>
         {% for nRow in range(0,50) %}
         <tr {% if val|length > nRow %}
-            {% if val[nRow]['repeat'] == 'feriale' %} bgcolor="#e8fcd9" {% elif val[nRow]['repeat'] == 'sabato'%} bgcolor="#d9f8fc" {% else %} bgcolor="#fafcd9" {% endif %}
+            {% if val[nRow]['repeat'] == 'feriale' %} bgcolor="#dbfac3" {% elif val[nRow]['repeat'] == 'sabato'%} bgcolor="#d9f8fc" {% else %} bgcolor="#f8facf" {% endif %}
             {% endif %}>
             {% if val|length > nRow %}
             <th><input style="max-width:40px" type="number" id="id" name="id.{{ nRow }}" value={{ val[nRow]['id'] }} readonly></th>
