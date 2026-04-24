@@ -20,7 +20,7 @@
             <th class="expandCol">note</th>
         </tr>
         {% for nRow in range(0,50) %}
-        <tr>{% if val|length > nRow %}
+        <tr {% if val[nRow]['repeat'] == 'feriale' %} bgcolor="#e8fcd9" {% elif val[nRow]['repeat'] == 'sabato'%} bgcolor="#d9f8fc" {% else %} bgcolor="#fafcd9" {% endif %}>{% if val|length > nRow %}
             <th><input style="max-width:40px" type="number" id="id" name="id.{{ nRow }}" value={{ val[nRow]['id'] }} readonly></th>
             <th><a style="color:red; vertical-align: super;" class="fa fa-trash-o" href="{{ url_for('blog.delete_row_setting', obj_id=val[nRow]['id']) }}"></a></th>
             <th><input style="max-width:60px" type="number" id="quantity" name="nPosto.{{ nRow }}" min="1" max={{ totPosti }} value={{ val[nRow]['n_parcheggio'] }}></th>
