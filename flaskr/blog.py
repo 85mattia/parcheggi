@@ -85,7 +85,7 @@ def griglia(page):
             elif len(prenInOra) == 0:
                 row.append({"matricola":"","lenCell":str(1)})
             else:
-                return "errore : piu prenotazioni per l'ora " + str(ora)
+                return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto) + " giorno " + dateStr + " " + currentDayType
         datiTable.append(row)
     return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType)
     
