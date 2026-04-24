@@ -193,7 +193,7 @@ def annullaPrenotazione(obj_id):
     cur.execute('DELETE FROM prenotazioni WHERE id = %s', (obj_id,))
     db.commit()
     db.close()
-    return render_template('blog/message.html', message="Prenotazione Annullata ")
+    return render_template('blog/message.html', message="Prenotazione Annullata")
     
     
 @bp.route('/prenota', methods=('POST',))
