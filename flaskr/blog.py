@@ -114,11 +114,12 @@ def setting(setPage):
         (currentSetPage.lower(),"no",)
     )
     assegnazioni = cur.fetchall()
+    assegnazioniSorted = sorted(assegnazioni, key=lambda d: d['repeat'])
     db.close()
     totPosti=10
     if setPage == "Venezia":
         totPosti = 15
-    return render_template('blog/setting.html', setPage=setPage, val=assegnazioni , totPosti=totPosti)
+    return render_template('blog/setting.html', setPage=setPage, val=assegnazioniSorted , totPosti=totPosti)
     
 @bp.route('/<loc>/salvaSetting', methods=('POST', 'GET'))
 @login_required
