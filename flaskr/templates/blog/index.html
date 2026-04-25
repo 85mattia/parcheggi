@@ -9,18 +9,18 @@
   <div>
     Venezia
     <div class="pad">
-    <a class="action" href="{{ url_for('blog.griglia', page='Venezia Oggi') }}">Oggi</a>
-    <a class="action" href="{{ url_for('blog.griglia', page='Venezia Domani') }}">Domani</a>
+    <a class="button button1" href="{{ url_for('blog.griglia', page='Venezia Oggi') }}">Oggi</a>
+    <a class="button button1" href="{{ url_for('blog.griglia', page='Venezia Domani') }}">Domani</a>
     </div>
     </div>
     <div>
     Mestre
     <div class="pad">
-    <a class="action" href="{{ url_for('blog.griglia', page='Mestre Oggi') }}">Oggi</a>
-    <a class="action" href="{{ url_for('blog.griglia', page='Mestre Domani') }}">Domani</a>
+    <a class="button button1" href="{{ url_for('blog.griglia', page='Mestre Oggi') }}">Oggi</a>
+    <a class="button button1" href="{{ url_for('blog.griglia', page='Mestre Domani') }}">Domani</a>
     </div>
     <br><br>
-    <a href="/files/PROSPETTO PARK IMPIANTO VE26.pdf" download>download prospetto park 2026</a>
+    <a href="{{ url_for('blog.showPdf') }}">download prospetto park 2026</a>
     </div>
   {% endif %}
   {% for post in posts %}

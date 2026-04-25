@@ -18,13 +18,35 @@ currentSetPage = ""
  
 
 @bp.route('/')
+@login_required
 def index():
     return render_template('blog/index.html')
+    
+@bp.route('/showPdf')
+@login_required
+def showPdf():
+    return render_template('blog/showPdf.html')
+    
+def deleteOldPren():
+    today = datetime.today()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+    try:
+        db = get_db()
+        cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(
+            'SELECT * FROM prenotazioni WHERE note = %s AND matricola != %s AND creation_date < %s',
+            ("","",last_month,))
+        prenotazioniVecchie = cur.fetchall()
+        #ora devo cancellare 
+    finally:
+        db.close()
     
 
 @bp.route('/<page>/griglia', methods=('GET', 'POST'))
 @login_required
 def griglia(page):
+    deleteOldPren()
     global currentPage
     global currentDate
     currentPage = page
@@ -85,7 +107,7 @@ def griglia(page):
             elif len(prenInOra) == 0:
                 row.append({"matricola":"","lenCell":str(1)})
             else:
-                return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto) + " giorno " + dateStr + " " + currentDayType
+                return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto+1) + " giorno " + dateStr + " " + currentDayType
         datiTable.append(row)
     return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType)
     
@@ -194,7 +216,9 @@ def annullaPrenotazione(obj_id):
     cur.execute('DELETE FROM prenotazioni WHERE id = %s', (obj_id,))
     db.commit()
     db.close()
-    return render_template('blog/message.html', message="Prenotazione Annullata")
+    flash("Prenotazione Annullata")
+    return redirect(request.referrer)
+    #return render_template('blog/message.html', message="Prenotazione Annullata")
     
     
 @bp.route('/prenota', methods=('POST',))
@@ -219,11 +243,11 @@ def prenota():
             if nPosto > 15 or nPosto < 1:
                 return "numero posto non valido"
         else:
-            return "errore currentPage string"
+            return "errore : pagina mancate"
         if int(dalle) >= int(alle):
             return "errore date"
         if int(alle) - int(dalle) < 6:
-            return "errore : devi prenotare almeno 6 ore"
+            return render_template('blog/message.html', message="errore : devi prenotare almeno 6 ore")
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(
@@ -241,10 +265,11 @@ def prenota():
         res = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == currentDate.date())]
         
         if len(res) > 0:
-            if g.user['username'] != "2959796":
-                test = [p for p in res if p["matricola"] == g.user['username']]
-                if len(test) > 0:
-                    return render_template('blog/message.html', message="errore : hai gia prenotato per questo giorno")
+            test = [p for p in res if p["matricola"] == g.user['username']]
+            if len(test) > 0:
+                flash("errore : hai gia prenotato per questo giorno", "error")
+                return redirect(request.referrer)
+                #return render_template('blog/message.html', message="errore : hai gia prenotato per questo giorno")
             prenInPosto = [r for r in res if r["n_parcheggio"] == nPosto]
             ranges = []
             ranges.clear()
@@ -254,18 +279,22 @@ def prenota():
             if len(ranges) > 0:
                 for r in ranges:
                     if overlaps(r,rangeToTest):
-                        return render_template('blog/message.html', message="Errore : fascia già prenotata")
+                        flash("errore : fascia già prenotata", "error")
+                        return redirect(request.referrer)
+                        #return render_template('blog/message.html', message="Errore : fascia già prenotata")
         db = get_db()
         cur = db.cursor()
         cur.execute(
-            'INSERT INTO prenotazioni (author_id, matricola, n_parcheggio, dalle_ore, alle_ore, giorno, location, repeat, note )'
-            ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-            (g.user['id'], g.user['username'], nPosto, dalle, alle, currentDate, currentLoc, "no", "")
+            'INSERT INTO prenotazioni (author_id, matricola, n_parcheggio, dalle_ore, alle_ore, giorno, location, repeat, creation_date, note )'
+            ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            (g.user['id'], g.user['username'], nPosto, dalle, alle, currentDate, currentLoc, "no", datetime.today(), "")
         )
         db.commit()
         db.close()
     p = currentPage
-    return render_template('blog/message.html', message="Prenotazione Eseguita")
+    flash("Prenotazione Eseguita")
+    return redirect(request.referrer)
+    #return render_template('blog/message.html', message="Prenotazione Eseguita")
 
 @bp.route('/eliminaUtente', methods=('POST',))
 @login_required

@@ -14,6 +14,7 @@ CREATE TABLE prenotazioni (
   dalle_ore INTEGER NOT NULL,
   alle_ore INTEGER NOT NULL,
   giorno TIMESTAMP,
+  creation_date TIMESTAMP,
   location VARCHAR(50),
   repeat VARCHAR(50),
   matricola VARCHAR(50),
