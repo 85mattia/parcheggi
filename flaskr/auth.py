@@ -96,7 +96,7 @@ def login():
             db.close()
 
         if user is None:
-            error = 'Matricola non trovata'
+            error = 'Matricola non trovata, devi effettuare la registrazione'
         else:
             hpassword = password.encode()
             input_hash_object = hashlib.sha256(hpassword)
@@ -109,7 +109,7 @@ def login():
             session['user_id'] = user['id']
             return redirect(url_for('index'))
 
-        flash(error)
+        flash(error, "error")
 
     return render_template('auth/login.html')
     

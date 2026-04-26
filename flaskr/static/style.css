@@ -55,6 +55,10 @@ h3 {color: #377ba8; margin: 1rem 1rem; }
 label {margin-right:10px;}
 ul {list-style-type: none;}
 .sepa{border-top: 1px solid lightgray;}
-.error {
-    color: red
+.alert.error {
+    padding: 12px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+    border: 2px solid darkred;
+    background-color: #fca2a2;
 }

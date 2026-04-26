@@ -35,7 +35,7 @@ def deleteOldPren():
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(
-            'SELECT * FROM prenotazioni WHERE note = %s AND matricola != %s AND creation_date < %s',
+            'DELETE FROM prenotazioni WHERE note = %s AND matricola != %s AND creation_date < %s',
             ("","",last_month,))
         prenotazioniVecchie = cur.fetchall()
         #ora devo cancellare 
@@ -46,7 +46,6 @@ def deleteOldPren():
 @bp.route('/<page>/griglia', methods=('GET', 'POST'))
 @login_required
 def griglia(page):
-    deleteOldPren()
     global currentPage
     global currentDate
     currentPage = page
