@@ -27,7 +27,7 @@ input[type=submit] { align-self: start; min-width: 10em; }
 .pad{padding:10px}
 .parkTable{border-spacing:0px; font-size:11px;width: 100%;border-collapse: collapse;table-layout: fixed;}
 .parkTable td{border: 1px solid black; padding:2px;/*overflow: hidden;white-space: nowrap;*/}
-.ora{font-size:0.6rem;color: #377ba8;background-color: #e3e3e3;padding-left: 0px;}
+.ora{font-size:0.6rem;color: #021cde;background-color: #e3e3e3;padding-left: 0px;}
 .button {
   border: none;
   color: white;
@@ -39,11 +39,12 @@ input[type=submit] { align-self: start; min-width: 10em; }
   margin: 4px 2px;
   cursor: pointer;
 }
-.cellRiservati{font-size:0.6rem;color: red;background-color: #e3e3e3;}
-.cellPrenotabili{font-size:0.6rem;background-color: #e3e3e3;}
+
 .button1 {background-color: #04AA6D;} /* Green */
 .button2 {background-color: #eb4034;} /* Blue */
+.cellPrenotabili{font-size:0.6rem;background-color: #e3e3e3;}
 .cellPrenotata{background-color: #82daff;}
+.cellPrenotataTurno{background-color: #f590fc;}
 input{font-size:15px;}
 .settingForm{border-style: solid;}
 .formTitle{text-align: center; color: blue;}
@@ -55,10 +56,26 @@ h3 {color: #377ba8; margin: 1rem 1rem; }
 label {margin-right:10px;}
 ul {list-style-type: none;}
 .sepa{border-top: 1px solid lightgray;}
+.alert {
+    padding: 12px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+    border: 1px solid darkblue;
+    background-color: lightblue;
+}
 .alert.error {
     padding: 12px;
-    border-radius: 3px;
+    border-radius: 2px;
     margin-bottom: 16px;
-    border: 2px solid darkred;
-    background-color: #fca2a2;
+    border: 1px solid darkred;
+    background-color: #fcaaa4;
+    color: darkred;
+}
+.alert.correct {
+    padding: 12px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+    border: 1px solid darkgreen;
+    background-color: #c4f5ca;
+    color: darkgreen;
 }

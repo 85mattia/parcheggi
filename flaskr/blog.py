@@ -66,7 +66,6 @@ def griglia(page):
         currentDate = currentDate + timedelta(days=1)
         dateStr = currentDate.strftime('%d-%m-%Y')
         n = 10
-    arr = ["conten"] * n
     try:
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -98,13 +97,13 @@ def griglia(page):
                 if ora == prenInOra[0]["dalle_ore"]:
                     lenCell = prenInOra[0]["alle_ore"] - prenInOra[0]["dalle_ore"]
                     if prenInOra[0]["note"] != "":
-                        row.append({"matricola":prenInOra[0]["note"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla"})
+                        row.append({"testo":prenInOra[0]["note"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla","turnoFlag":1})
                     else:
                         if prenInOra[0]["matricola"] == g.user['username']:
                             delId = prenInOra[0]["id"]
-                        row.append({"matricola":prenInOra[0]["matricola"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla"})
+                        row.append({"testo":prenInOra[0]["matricola"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla","turnoFlag":0})
             elif len(prenInOra) == 0:
-                row.append({"matricola":"","lenCell":str(1)})
+                row.append({"testo":"","lenCell":str(1)})
             else:
                 return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto+1) + " giorno " + dateStr + " " + currentDayType
         datiTable.append(row)
@@ -191,7 +190,7 @@ def delete_row_setting(obj_id):
     curr.execute('DELETE FROM prenotazioni WHERE id = %s', (obj_id,))
     db.commit()
     db.close()
-    flash("cancellato elemento " + obj_id)
+    flash("cancellato elemento " + obj_id, "correct")
     return render_template('blog/setting_menu.html')
     
 def validatePrenForm(prenotazioni):
@@ -215,7 +214,7 @@ def annullaPrenotazione(obj_id):
     cur.execute('DELETE FROM prenotazioni WHERE id = %s', (obj_id,))
     db.commit()
     db.close()
-    flash("Prenotazione Annullata")
+    flash("Prenotazione Annullata", "correct")
     return redirect(request.referrer)
     #return render_template('blog/message.html', message="Prenotazione Annullata")
     
@@ -246,7 +245,9 @@ def prenota():
         if int(dalle) >= int(alle):
             return "errore date"
         if int(alle) - int(dalle) < 6:
-            return render_template('blog/message.html', message="errore : devi prenotare almeno 6 ore")
+            flash("devi prenotare almeno 6 ore", "error")
+            return redirect(request.referrer)
+            #return render_template('blog/message.html', message="errore : devi prenotare almeno 6 ore")
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(
@@ -278,7 +279,7 @@ def prenota():
             if len(ranges) > 0:
                 for r in ranges:
                     if overlaps(r,rangeToTest):
-                        flash("errore : fascia già prenotata", "error")
+                        flash("errore : posto n." + str(nPosto) + " fascia " + str(rangeToTest.start) + "-" + str(rangeToTest.stop) + " già occupata", "error")
                         return redirect(request.referrer)
                         #return render_template('blog/message.html', message="Errore : fascia già prenotata")
         db = get_db()
@@ -291,7 +292,7 @@ def prenota():
         db.commit()
         db.close()
     p = currentPage
-    flash("Prenotazione Eseguita")
+    flash("Prenotazione Eseguita", "correct")
     return redirect(request.referrer)
     #return render_template('blog/message.html', message="Prenotazione Eseguita")
 

@@ -18,9 +18,9 @@
     {% for nPosto in range(0,nPosti) %}
         <tr>
             <td class="cellPrenotabili">{{ count.value }}</td>
-            {% for cell in dati[nPosto] %}
-                <td colspan={{ cell["lenCell"] }} class="{% if cell["matricola"] != "" %}cellPrenotata{% endif %}">
-                {{ cell["matricola"] }}
+            {% for cell in dati[nPosto] %} 
+                <td colspan={{ cell["lenCell"] }} class="{% if cell["turnoFlag"] == 0 %}cellPrenotata{% elif cell["turnoFlag"] == 1 %}cellPrenotataTurno{% endif %}">
+                {{ cell["testo"] }}
                 {% if cell["delId"] != "" %}<a style="color:red" href="{{ url_for('blog.annullaPrenotazione', obj_id=cell["delId"]) }}">{{ cell["annullaStr"] }}</a>{% endif %}
                 </td>
             {% endfor %}
