@@ -53,12 +53,15 @@ def griglia(page):
     dateStr = currentDate.strftime('%d-%m-%Y')
     location = "venezia"
     showForm = "si"
+    arrowLink = ""
     if page == "Venezia Oggi":
         n = 15
+        arrowLink = "Venezia Domani"
     if page == "Venezia Domani":
         currentDate = currentDate + timedelta(days=1)
         dateStr = currentDate.strftime('%d-%m-%Y')
         n = 15
+        arrowLink = "Venezia Dopodomani"
     if page == "Venezia Dopodomani":
         currentDate = currentDate + timedelta(days=2)
         dateStr = currentDate.strftime('%d-%m-%Y')
@@ -67,11 +70,13 @@ def griglia(page):
     if page == "Mestre Oggi":
         location = "mestre"
         n = 10
+        arrowLink = "Mestre Domani"
     if page == "Mestre Domani":
         location = "mestre"
         currentDate = currentDate + timedelta(days=1)
         dateStr = currentDate.strftime('%d-%m-%Y')
         n = 10
+        arrowLink = "Mestre Dopodomani"
     if page == "Mestre Dopodomani":
         location = "mestre"
         currentDate = currentDate + timedelta(days=2)
@@ -134,7 +139,7 @@ def griglia(page):
             else:
                 return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto+1) + " giorno " + dateStr + " " + currentDayType
         datiTable.append(row)
-    return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType, showForm=showForm)
+    return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType, showForm=showForm, arrowLink=arrowLink)
     
 @bp.route('/setting_menu', methods=('GET', 'POST'))
 @login_required
@@ -303,8 +308,8 @@ def prenota():
         if weekDay == 6 or isFestivo(currentDate.date()):
             currentDayType = "festivo"
         prenEsistenti = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == currentDate.date())]
-        checkDalle = dalle
-        checkAlle = alle
+        checkDalle = int(dalle)
+        checkAlle = int(alle)
         if rfrCheckboxValue == 1:
             checkAlle = 24
         if len(prenEsistenti) > 0:
@@ -316,7 +321,7 @@ def prenota():
         #controllo il giorno dopo
         if rfrCheckboxValue == 1:
             checkDalle = 0
-            checkAlle = alle
+            checkAlle = int(alle)
             dayAfter = currentDate + timedelta(days=1)
             weekDay = dayAfter.date().weekday()
             currentDayType = "feriale"

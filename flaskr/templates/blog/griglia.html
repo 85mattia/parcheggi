@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    
-  <h2>{% block title %}{{ page }} {{ dateStr }}{% endblock %}</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<h2>{% block title %}{{ page }} {{ dateStr }}{% endblock %}</h2>{% if not "Dopodomani" in page %}<div class="frecciaCont"><a class="fa fa-arrow-right fa-2x noDeco" href="{{ url_for('blog.griglia', page=arrowLink) }}"></a></div>{% endif %}
 {% endblock %}
 
 {% block content %}
-{% if showForm == "no" %}<div><h3 style="color:orange">Solo visualizzazione</h3></div>{% endif %}
 <h3>{{ tipo }}</h3>
+{% if showForm == "no" %}<div><h3 style="color:orange">Solo visualizzazione</h3></div>{% endif %}
   <div classs="pippo">
   <table class="parkTable">
     <tr>
@@ -23,7 +23,7 @@
             {% for cell in dati[nPosto] %} 
                 <td colspan={{ cell["lenCell"] }} class="{% if cell["turnoFlag"] == 0 %}cellPrenotata{% elif cell["turnoFlag"] == 1 %}cellPrenotataTurno{% endif %}">
                 {{ cell["testo"] }}
-                {% if cell["delId"] != "" %}
+                {% if cell["delId"] | length != 0 %}
                     <a class="button3" href="{{ url_for('blog.annullaPrenotazione', obj_id=cell["delId"]) }}">{{ cell["annullaStr"] }}</a> 
                 {% endif %}
                 </td>

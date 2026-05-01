@@ -24,7 +24,7 @@ nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
 .content textarea { min-height: 12em; resize: vertical; }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
-.pad{padding:10px}
+.homeButtonCont{padding:10px;/*display: flex;width: 100%;border:1px solid black;justify-content: space-between;align-content: space-between;display: flex;*/}
 .parkTable{border-spacing:0px; font-size:11px;width: 100%;border-collapse: collapse;table-layout: fixed;}
 .parkTable td{border: 1px solid black; padding:2px;/*overflow: hidden;white-space: nowrap;*/}
 .ora{font-size:0.6rem;color: #021cde;background-color: #e3e3e3;padding-left: 0px;}
@@ -46,9 +46,7 @@ input[type=submit] { align-self: start; min-width: 10em; }
   border: none;
   border-radius: 2px;
   color: white;
-  /*padding: 2px 5px 2px 5px;*/
-  padding-top:3px;
-  padding-bottom:3px;
+  padding: 3px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -66,7 +64,7 @@ input{font-size:15px;}
 .settingTable{width: 100%;border-spacing:0px;border-collapse: collapse;}
 .settingTable th{/*border: 1px solid black;*/}
 .settingTable .expandCol{width: 100%;}
-h3 {color: #377ba8; margin: 1rem 1rem; }
+h3 {margin: 0.5rem 1rem; }
 label {margin-right:10px;}
 ul {list-style-type: none;}
 .sepa{border-top: 1px solid lightgray;}
@@ -106,3 +104,6 @@ input[type=checkbox]
   margin-right: 12px;
   margin-left: 12px;
 }
+.frecciaCont{margin-left:10px;}
+.noDeco{text-decoration: none;}
+.center{display: flex;justify-content: center;align-items: center;}

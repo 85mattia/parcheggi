@@ -7,16 +7,16 @@
 {% block content %}
   {% if g.user %}
   <div>
-    Venezia
-    <div class="pad">
+    <div class="center">Venezia</div>
+    <div class="homeButtonCont">
     <a class="button button1" href="{{ url_for('blog.griglia', page='Venezia Oggi') }}">Oggi</a>
     <a class="button button1" href="{{ url_for('blog.griglia', page='Venezia Domani') }}">Domani</a>
     <a class="button button2" href="{{ url_for('blog.griglia', page='Venezia Dopodomani') }}">Dopodomani</a>
     </div>
     </div>
     <div>
-    Mestre Metropark
-    <div class="pad">
+    <div class="center">Mestre Metropark</div>
+    <div class="homeButtonCont">
     <a class="button button1" href="{{ url_for('blog.griglia', page='Mestre Oggi') }}">Oggi</a>
     <a class="button button1" href="{{ url_for('blog.griglia', page='Mestre Domani') }}">Domani</a>
     <a class="button button2" href="{{ url_for('blog.griglia', page='Mestre Dopodomani') }}">Dopodomani</a>

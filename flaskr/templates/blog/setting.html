@@ -25,7 +25,7 @@
             {% endif %}>
             {% if val|length > nRow %}
             <th><input style="max-width:40px" type="number" id="id" name="id.{{ nRow }}" value={{ val[nRow]['id'] }} readonly></th>
-            <th><a style="color:red; vertical-align: super;" class="fa fa-trash-o" href="{{ url_for('blog.delete_row_setting', obj_id=val[nRow]['id']) }}"></a></th>
+            <th><a style="color:red; vertical-align: super;" class="fa fa-trash-o noDeco" href="{{ url_for('blog.delete_row_setting', obj_id=val[nRow]['id']) }}"></a></th>
             <th><input style="max-width:60px" type="number" id="quantity" name="nPosto.{{ nRow }}" min="1" max={{ totPosti }} value={{ val[nRow]['n_parcheggio'] }}></th>
             <th><input style="max-width:60px" type="number" id="quantity" name="dalle.{{ nRow }}" min="0" max="22" value={{ val[nRow]['dalle_ore'] }}></th>
             <th><input style="max-width:60px" type="number" id="quantity" name="alle.{{ nRow }}" min="3" max="24" value={{ val[nRow]['alle_ore'] }}></th>
