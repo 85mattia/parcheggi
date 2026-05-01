@@ -64,7 +64,7 @@ def cambia_password():
         utente = cur.fetchone()
         db.close()
         if utente is None:
-            flash("matricola non trovata")
+            flash("matricola non trovata", "error")
         else:
             db = get_db()
             cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -74,7 +74,7 @@ def cambia_password():
             )
             db.commit()
             db.close()
-            flash("la password è stata modificata, puoi eseguire il login")
+            flash("la password è stata modificata, puoi eseguire il login", "correct")
             return redirect(url_for("auth.login"))
             
     return render_template('auth/reset_password.html')

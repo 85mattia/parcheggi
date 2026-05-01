@@ -52,12 +52,18 @@ def griglia(page):
     currentDate = datetime.today()
     dateStr = currentDate.strftime('%d-%m-%Y')
     location = "venezia"
+    showForm = "si"
     if page == "Venezia Oggi":
         n = 15
     if page == "Venezia Domani":
         currentDate = currentDate + timedelta(days=1)
         dateStr = currentDate.strftime('%d-%m-%Y')
         n = 15
+    if page == "Venezia Dopodomani":
+        currentDate = currentDate + timedelta(days=2)
+        dateStr = currentDate.strftime('%d-%m-%Y')
+        n = 15
+        showForm = "no"
     if page == "Mestre Oggi":
         location = "mestre"
         n = 10
@@ -66,6 +72,12 @@ def griglia(page):
         currentDate = currentDate + timedelta(days=1)
         dateStr = currentDate.strftime('%d-%m-%Y')
         n = 10
+    if page == "Mestre Dopodomani":
+        location = "mestre"
+        currentDate = currentDate + timedelta(days=2)
+        dateStr = currentDate.strftime('%d-%m-%Y')
+        n = 10
+        showForm = "no"
     try:
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -75,7 +87,6 @@ def griglia(page):
         prenotazioni = cur.fetchall()
     finally:
         db.close()
-    
     weekDay = currentDate.date().weekday()
     currentDayType = "feriale"
     if weekDay == 5:
@@ -83,7 +94,18 @@ def griglia(page):
     if weekDay == 6 or isFestivo(currentDate.date()):
         currentDayType = "festivo"
     res = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == currentDate.date())]
-    #res = [p for p in res if p["repeat"] == currentDayType]
+    for i,val in enumerate(res):
+        if val["rfr"] == 1:
+            res[i]["alle_ore"] = 24
+    dayBefore = currentDate.date() - timedelta(days=1)
+    print(dayBefore)
+    resDayBefore = [pren for pren in prenotazioni if pren["rfr"] == 1 and pren["giorno"].date() == dayBefore]
+    if len(resDayBefore) > 0:
+        for rfrBefore in resDayBefore:
+            new = rfrBefore.copy()
+            new["dalle_ore"] = 0
+            res.append(new)
+            
     datiTable = [[]]
     datiTable.clear()
     for posto in range(n):
@@ -100,14 +122,19 @@ def griglia(page):
                         row.append({"testo":prenInOra[0]["note"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla","turnoFlag":1})
                     else:
                         if prenInOra[0]["matricola"] == g.user['username']:
-                            delId = prenInOra[0]["id"]
-                        row.append({"testo":prenInOra[0]["matricola"],"lenCell":str(lenCell),"delId":delId,"annullaStr":"annulla","turnoFlag":0})
+                            delId = str(prenInOra[0]["id"])
+                            annullaStr = "  annulla  "
+                        t = prenInOra[0]["matricola"]
+                        if prenInOra[0]["rfr"] == 1:
+                            t = prenInOra[0]["matricola"] + "-RFR"
+                            annullaStr = "annulla RFR"
+                        row.append({"testo":t,"lenCell":str(lenCell),"delId":delId,"annullaStr":annullaStr,"turnoFlag":0})
             elif len(prenInOra) == 0:
                 row.append({"testo":"","lenCell":str(1)})
             else:
                 return "errore : piu prenotazioni per l'ora " + str(ora) + " posto n " + str(posto+1) + " giorno " + dateStr + " " + currentDayType
         datiTable.append(row)
-    return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType)
+    return render_template('blog/griglia.html', page=page, nPosti=n, dati=datiTable, dateStr=dateStr, tipo=currentDayType, showForm=showForm)
     
 @bp.route('/setting_menu', methods=('GET', 'POST'))
 @login_required
@@ -202,7 +229,7 @@ def validatePrenForm(prenotazioni):
         if len(prenInPosto) > 2:
             return "errore : piu di due prenotazioni per parcheggio n " + p["nPosto"]
         if len(prenInPosto) == 2:
-            if overlaps(range(int(prenInPosto[0]["dalle"]),int(prenInPosto[0]["alle"])),range(int(prenInPosto[1]["dalle"]),int(prenInPosto[1]["alle"]))):
+            if rangeOverlaps(range(int(prenInPosto[0]["dalle"]),int(prenInPosto[0]["alle"])),range(int(prenInPosto[1]["dalle"]),int(prenInPosto[1]["alle"]))):
                 return "errore : orari sovrapposti per parcheggio n " + p["nPosto"]
     return ""
         
@@ -211,7 +238,7 @@ def validatePrenForm(prenotazioni):
 def annullaPrenotazione(obj_id):
     db = get_db()
     cur = db.cursor()
-    cur.execute('DELETE FROM prenotazioni WHERE id = %s', (obj_id,))
+    cur.execute('DELETE FROM prenotazioni WHERE id = %s', (int(obj_id),))
     db.commit()
     db.close()
     flash("Prenotazione Annullata", "correct")
@@ -229,6 +256,11 @@ def prenota():
         location = "mestre"
     if request.method == 'POST':
         data = request.form
+        rfrCheckbox = data.getlist("rfr")
+        rfrCheckboxValue = 0
+        if len(rfrCheckbox) > 0:
+            if rfrCheckbox[0] == "rfr":
+                rfrCheckboxValue = 1
         nPosto = int(data["nPosto"])
         dalle = data["dalle"]
         alle = data["alle"]
@@ -242,12 +274,20 @@ def prenota():
                 return "numero posto non valido"
         else:
             return "errore : pagina mancate"
-        if int(dalle) >= int(alle):
-            return "errore date"
-        if int(alle) - int(dalle) < 6:
-            flash("devi prenotare almeno 6 ore", "error")
-            return redirect(request.referrer)
-            #return render_template('blog/message.html', message="errore : devi prenotare almeno 6 ore")
+        if rfrCheckboxValue == 0:
+            if int(dalle) >= int(alle):
+                flash("errore inserimento orario inizio e fine (fine < inizio)", "error")
+                return redirect(request.referrer)
+            if int(alle) - int(dalle) < 6:
+                flash("errore: devi prenotare almeno 6 ore", "error")
+                return redirect(request.referrer)
+        if rfrCheckboxValue == 1:
+            if int(dalle) < int(alle):
+                flash("errore: hai inserito una prenotazione maggiore di 24h per un RFR", "error")
+                return redirect(request.referrer)
+            if (24 - int(dalle) + int(alle)) < 8:
+                flash("devi prenotare almeno 8 ore per un RFR", "error")
+                return redirect(request.referrer)
         db = get_db()
         cur = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(
@@ -262,39 +302,63 @@ def prenota():
             currentDayType = "sabato"
         if weekDay == 6 or isFestivo(currentDate.date()):
             currentDayType = "festivo"
-        res = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == currentDate.date())]
-        
-        if len(res) > 0:
-            test = [p for p in res if p["matricola"] == g.user['username']]
-            if len(test) > 0:
-                flash("errore : hai gia prenotato per questo giorno", "error")
+        prenEsistenti = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == currentDate.date())]
+        checkDalle = dalle
+        checkAlle = alle
+        if rfrCheckboxValue == 1:
+            checkAlle = 24
+        if len(prenEsistenti) > 0:
+            err = validaPrenotazione(prenEsistenti, g.user['username'], nPosto, checkDalle, checkAlle)
+            if err != "":
+                flash(err, "error")
                 return redirect(request.referrer)
-                #return render_template('blog/message.html', message="errore : hai gia prenotato per questo giorno")
-            prenInPosto = [r for r in res if r["n_parcheggio"] == nPosto]
-            ranges = []
-            ranges.clear()
-            for pren in prenInPosto:
-                ranges.append(range(pren["dalle_ore"],pren["alle_ore"]))
-            rangeToTest = range(int(dalle),int(alle))
-            if len(ranges) > 0:
-                for r in ranges:
-                    if overlaps(r,rangeToTest):
-                        flash("errore : posto n." + str(nPosto) + " fascia " + str(rangeToTest.start) + "-" + str(rangeToTest.stop) + " già occupata", "error")
-                        return redirect(request.referrer)
-                        #return render_template('blog/message.html', message="Errore : fascia già prenotata")
+        
+        #controllo il giorno dopo
+        if rfrCheckboxValue == 1:
+            checkDalle = 0
+            checkAlle = alle
+            dayAfter = currentDate + timedelta(days=1)
+            weekDay = dayAfter.date().weekday()
+            currentDayType = "feriale"
+            if weekDay == 5:
+                currentDayType = "sabato"
+            if weekDay == 6 or isFestivo(currentDate.date()):
+                currentDayType = "festivo"
+            prenEsistenti = [pren for pren in prenotazioni if pren["repeat"] == currentDayType or (pren["repeat"] == "no" and pren["giorno"].date() == dayAfter)]
+            if len(prenEsistenti) > 0:
+                err = validaPrenotazione(prenEsistenti, g.user['username'], nPosto, checkDalle, checkAlle)
+            if err != "":
+                flash(err, "error")
+                return redirect(request.referrer)
         db = get_db()
         cur = db.cursor()
         cur.execute(
-            'INSERT INTO prenotazioni (author_id, matricola, n_parcheggio, dalle_ore, alle_ore, giorno, location, repeat, creation_date, note )'
-            ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-            (g.user['id'], g.user['username'], nPosto, dalle, alle, currentDate, currentLoc, "no", datetime.today(), "")
+            'INSERT INTO prenotazioni (author_id, matricola, n_parcheggio, dalle_ore, alle_ore, giorno, location, repeat, creation_date, note, rfr )'
+            ' VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            (g.user['id'], g.user['username'], nPosto, dalle, alle, currentDate, currentLoc, "no", datetime.today(), "",rfrCheckboxValue)
         )
         db.commit()
         db.close()
     p = currentPage
     flash("Prenotazione Eseguita", "correct")
     return redirect(request.referrer)
-    #return render_template('blog/message.html', message="Prenotazione Eseguita")
+    
+def validaPrenotazione(prenEsistenti, matricola, nPark, dalle , alle):
+    error = ""
+    test = [p for p in prenEsistenti if p["matricola"] == matricola]
+    if len(test) > 0:
+        return "errore : hai gia prenotato per questo giorno"
+    prenInPosto = [r for r in prenEsistenti if r["n_parcheggio"] == nPark]
+    rangesEsistenti = []
+    rangesEsistenti.clear()
+    for pren in prenInPosto:
+        rangesEsistenti.append(range(pren["dalle_ore"],pren["alle_ore"]))
+    rangeToTest = range(int(dalle)+1,int(alle)-1)
+    if len(rangesEsistenti) > 0:
+        for r in rangesEsistenti:
+            if rangeOverlaps(r,rangeToTest):
+                error =  "errore : posto n." + str(nPark) + " fascia " + str(rangeToTest.start) + "-" + str(rangeToTest.stop) + " già occupata"
+    return error
 
 @bp.route('/eliminaUtente', methods=('POST',))
 @login_required
@@ -362,7 +426,7 @@ def rimuoviAdmin():
         db.close()
     return render_template('blog/message.html', message="rimosso admin " + data["matricola"])
     
-def overlaps(x, y):
+def rangeOverlaps(x, y):
     return max(x.start,y.start) < min(x.stop+1,y.stop+1)
     
 def isFestivo(date):

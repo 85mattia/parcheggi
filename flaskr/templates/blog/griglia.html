@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block header %}
+    
   <h2>{% block title %}{{ page }} {{ dateStr }}{% endblock %}</h2>
 {% endblock %}
 
 {% block content %}
+{% if showForm == "no" %}<div><h3 style="color:orange">Solo visualizzazione</h3></div>{% endif %}
 <h3>{{ tipo }}</h3>
   <div classs="pippo">
   <table class="parkTable">
@@ -21,7 +23,9 @@
             {% for cell in dati[nPosto] %} 
                 <td colspan={{ cell["lenCell"] }} class="{% if cell["turnoFlag"] == 0 %}cellPrenotata{% elif cell["turnoFlag"] == 1 %}cellPrenotataTurno{% endif %}">
                 {{ cell["testo"] }}
-                {% if cell["delId"] != "" %}<a style="color:red" href="{{ url_for('blog.annullaPrenotazione', obj_id=cell["delId"]) }}">{{ cell["annullaStr"] }}</a>{% endif %}
+                {% if cell["delId"] != "" %}
+                    <a class="button3" href="{{ url_for('blog.annullaPrenotazione', obj_id=cell["delId"]) }}">{{ cell["annullaStr"] }}</a> 
+                {% endif %}
                 </td>
             {% endfor %}
         </tr>
@@ -31,7 +35,7 @@
     </table>
   </div>
   <div>
-  <!--<button class="button button1">Prenota</button>-->
+  {% if showForm == "si" %}
   <form method="POST" action="{{ url_for('blog.prenota')}}">
   <div style="display:flex;">
     <label style="width:90px" for="quantity">Posto n:</label>
@@ -44,8 +48,11 @@
     <div style="display:flex;">
     <label style="width:90px" for="quantity">Alle:</label>
     <input style="width: 100%" type="number" id="quantity" name="alle" min="3" max="24" required>
+    <input type="checkbox" id="rfr" name="rfr" value="rfr">
+    <label for="rfr">RFR</label>
     </div>
     <input type="submit" value="Prenota" class="button button1">
     </form>
+    {% endif %}
   </div>
 {% endblock %}

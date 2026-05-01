@@ -18,5 +18,6 @@ CREATE TABLE prenotazioni (
   location VARCHAR(50),
   repeat VARCHAR(50),
   matricola VARCHAR(50),
+  rfr INTEGER DEFAULT 0,
   note TEXT
 );
