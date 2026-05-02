@@ -26,7 +26,7 @@ input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 10em; }
 .homeButtonCont{padding:10px;/*display: flex;width: 100%;border:1px solid black;justify-content: space-between;align-content: space-between;display: flex;*/}
 .parkTable{border-spacing:0px; font-size:11px;width: 100%;border-collapse: collapse;table-layout: fixed;}
-.parkTable td{border: 1px solid black; padding:2px;/*overflow: hidden;white-space: nowrap;*/}
+.parkTable td{border: 1px solid #9e9d9d; padding:2px;/*overflow: hidden;white-space: nowrap;*/}
 .ora{font-size:0.6rem;color: #021cde;background-color: #e3e3e3;padding-left: 0px;}
 .button {
   border: none;

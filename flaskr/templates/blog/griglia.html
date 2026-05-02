@@ -48,8 +48,10 @@
     <div style="display:flex;">
     <label style="width:90px" for="quantity">Alle:</label>
     <input style="width: 100%" type="number" id="quantity" name="alle" min="3" max="24" required>
+    {% if "Venezia" in page %}
     <input type="checkbox" id="rfr" name="rfr" value="rfr">
     <label for="rfr">RFR</label>
+    {% endif %}
     </div>
     <input type="submit" value="Prenota" class="button button1">
     </form>
